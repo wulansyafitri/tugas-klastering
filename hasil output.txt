@@ -1,0 +1,108 @@
+﻿> library(ggplot2)
+> library(cluster)
+> data=penduduk_data_adi
+> data
+# A tibble: 15 x 4
+   desa          laki perempuan jumlah
+   <chr>        <dbl>     <dbl>  <dbl>
+ 1 gondowangi    3030      3042   6072
+ 2 Sawangan      2425      2550   4975
+ 3 mangunsari    1415      1447   2862
+ 4 Tirtosari     1650      1716   3366
+ 5 Podosoko      2497      2430   4927
+ 6 Butuh         1570      1605   3175
+ 7 Krogowanan    1911      1871   3782
+ 8 Kapuhan       1882      1870   3752
+ 9 Gantang       1709      1624   3333
+10 Jati          1996      1928   3924
+11 Soronalan     1131      1086   2217
+12 Wulunggunung  1130      1064   2194
+13 Ketep         1200      1171   2371
+14 Wololelo      3274      3087   6361
+15 Banyuroto     2031      1945   3976
+> data$desa
+ [1] "gondowangi"   "Sawangan"     "mangunsari"   "Tirtosari"   
+ [5] "Podosoko"     "Butuh"        "Krogowanan"   "Kapuhan"     
+ [9] "Gantang"      "Jati"         "Soronalan"    "Wulunggunung"
+[13] "Ketep"        "Wololelo"     "Banyuroto"   
+> hasil<-kmeans(data[,2,3],3)
+> hasil
+K-means clustering with 3 clusters of sizes 7, 2, 6
+
+Cluster means:
+      [,1]
+1 1400.714
+2 3152.000
+3 2123.667
+
+Clustering vector:
+ [1] 2 3 1 1 3 1 3 3 1 3 1 1 1 2 3
+
+Within cluster sum of squares by cluster:
+[1] 372363.4  29768.0 358695.3
+ (between_SS / total_SS =  87.2 %)
+
+Available components:
+
+[1] "cluster"      "centers"      "totss"        "withinss"    
+[5] "tot.withinss" "betweenss"    "size"         "iter"        
+[9] "ifault"      
+> hasil$cluster
+ [1] 2 3 1 1 3 1 3 3 1 3 1 1 1 2 3
+> hasil$centers
+      [,1]
+1 1400.714
+2 3152.000
+3 2123.667
+> hasil$size
+[1] 7 2 6
+> table(hasil$cluster, data$desa)
+   
+    Banyuroto Butuh Gantang gondowangi Jati Kapuhan Ketep Krogowanan
+  1         0     1       1          0    0       0     1          0
+  2         0     0       0          1    0       0     0          0
+  3         1     0       0          0    1       1     0          1
+   
+    mangunsari Podosoko Sawangan Soronalan Tirtosari Wololelo
+  1          1        0        0         1         1        0
+  2          0        0        0         0         0        1
+  3          0        1        1         0         0        0
+   
+    Wulunggunung
+  1            1
+  2            0
+  3            0
+> hasil$cluster <- as.factor(hasil$cluster)
+> ggplot(data, aes(data$desa, data$laki, data$perempuan, color = hasil$cluster)) + geom_point()
+> dataSample <-data[,2,3]
+> hc <- hclust(dist(dataSample), method="ave")
+> hc
+
+Call:
+hclust(d = dist(dataSample), method = "ave")
+
+Cluster method   : average 
+Distance         : euclidean 
+Number of objects: 15 
+
+> plot(hc, hang = -1, labels=data$laki)
+> d <- dist(dataSample, method="euclidian")
+> pamCluster <- pam(d, 3)
+> clusplot(as.matrix(d), pamCluster$cluster, color=T, shade=T, labels=3, lines=0) 
+> pamCluster
+Medoids:
+     ID   
+[1,]  1  1
+[2,]  8  8
+[3,] 13 13
+Clustering vector:
+ [1] 1 2 3 2 1 2 2 2 2 2 3 3 3 1 2
+Objective function:
+   build     swap 
+178.8667 178.8667 
+
+Available components:
+[1] "medoids"    "id.med"     "clustering" "objective"  "isolation" 
+[6] "clusinfo"   "silinfo"    "diss"       "call"      
+> 
+> 
